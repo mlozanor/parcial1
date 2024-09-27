@@ -1,26 +1,25 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
+import { Container, Navbar, Nav, Button } from 'react-bootstrap';
+import { useTranslation } from 'react-i18next';
 import LoginForm from './components/LoginForm';
 import RobotList from './components/RobotList';
 import RobotDetail from './components/RobotDetail';
-import { useState } from 'react';
-import { Container, Navbar, Nav, Button } from 'react-bootstrap';
-import { useTranslation } from 'react-i18next';
 
 const App = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const { i18n } = useTranslation();
+  const [isAuthenticated, setIsAuthenticated] = useState(false); // Estado para manejar la autenticación
+  const { t, i18n } = useTranslation(); // Hook para manejar la traducción
 
   const handleLogin = () => {
-    setIsAuthenticated(true);
+    setIsAuthenticated(true); // Autenticar al usuario
   };
 
   const handleLogout = () => {
-    setIsAuthenticated(false);
+    setIsAuthenticated(false); // Desautenticar al usuario
   };
 
   const changeLanguage = (lng) => {
-    i18n.changeLanguage(lng);
+    i18n.changeLanguage(lng); // Cambiar el idioma usando i18n
   };
 
   return (

@@ -1,24 +1,42 @@
 import React, { useState } from 'react';
-import { Form, Button, Container, Row, Col, Image } from 'react-bootstrap';
+import { Form, Button, Container, Row, Col, Image, Alert } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 const LoginForm = ({ onLogin }) => {
+  const { t } = useTranslation();  
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const navigate = useNavigate();
 
-  // Credenciales predefinidas
-  const validUser = {
-    email: 'user@example.com',
-    password: 'password123',
-  };
-
   const authenticate = async (email, password) => {
-    if (email === validUser.email && password === validUser.password) {
-      return true;
+    try {
+      const response = await fetch('http://localhost:3001/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          login: email,
+          password: password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.status === 200) {
+        return true;  
+      } else {
+        setErrorMessage(data.message);  
+        return false;
+      }
+    } catch (err) {
+      console.error('Error:', err);
+      setErrorMessage('Error de conexión con el servidor');
+      return false;
     }
-    return false;
   };
 
   const handleSubmit = async (e) => {
@@ -26,7 +44,7 @@ const LoginForm = ({ onLogin }) => {
     const isValid = await authenticate(email, password);
     if (isValid) {
       onLogin();
-      navigate('/robots');
+      navigate('/robots'); 
     } else {
       setError(true);
     }
@@ -122,18 +140,18 @@ const LoginForm = ({ onLogin }) => {
     <div style={styles.pageContainer}>
       <Container style={styles.container}>
         <div style={styles.headerContainer}>
-          <h1 style={styles.headerTitle}>Adopta un Robot con Robot Lovers!</h1>
+          <h1 style={styles.headerTitle}>{t('Adopt a Robot with Robot Lovers!')}</h1>
           <Image src={require('../images/imagenheader.png')} fluid style={styles.robotsImage} alt="Robots" />
         </div>
         <Row className="justify-content-md-center">
           <Col md={12}>
             <Form onSubmit={handleSubmit} style={styles.formContainer}>
-              <h3 style={styles.headerTitle}>Inicio de sesión</h3>
+              <h3 style={styles.headerTitle}>{t('login')}</h3>
               <Form.Group controlId="formBasicEmail" style={styles.formGroup}>
-                <Form.Label style={styles.formLabel}>Nombre de usuario</Form.Label>
+                <Form.Label style={styles.formLabel}>{t('username')}</Form.Label>
                 <Form.Control
-                  type="email"
-                  placeholder="Ingrese su correo"
+                  type="text"
+                  placeholder={t('enterEmail')}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
@@ -141,10 +159,10 @@ const LoginForm = ({ onLogin }) => {
                 />
               </Form.Group>
               <Form.Group controlId="formBasicPassword" style={styles.formGroup}>
-                <Form.Label style={styles.formLabel}>Contraseña</Form.Label>
+                <Form.Label style={styles.formLabel}>{t('password')}</Form.Label>
                 <Form.Control
                   type="password"
-                  placeholder="Ingrese su contraseña"
+                  placeholder={t('enterPassword')}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
@@ -152,16 +170,16 @@ const LoginForm = ({ onLogin }) => {
                 />
               </Form.Group>
               {error && (
-                <div style={styles.errorText}>
-                  Error de autenticación. Revise sus credenciales.
-                </div>
+                <Alert variant="danger" style={styles.errorText}>
+                  {errorMessage || t('authError')}
+                </Alert>
               )}
               <div style={styles.btnContainer}>
                 <Button variant="primary" type="submit" style={styles.btnIngresar}>
-                  Ingresar
+                  {t('submit')}
                 </Button>
                 <Button variant="danger" style={styles.btnCancelar}>
-                  Cancelar
+                  {t('cancel')}
                 </Button>
               </div>
             </Form>
@@ -170,7 +188,7 @@ const LoginForm = ({ onLogin }) => {
         <Row className="justify-content-md-center mt-4">
           <Col md={12} className="text-center">
             <p style={styles.contactInfo}>
-              Contact us: +57 3102105253 - info@robot-lovers.com - @robot-lovers
+              {t('Contact us: +57 3102105253 - info@robot-lovers.com - @robot-lovers')}
             </p>
           </Col>
         </Row>
